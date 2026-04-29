@@ -1,0 +1,46 @@
+apiVersion: gitops.kubedb.com/v1alpha1
+kind: Postgres
+metadata:
+  name: postgres-a
+  namespace: demo
+spec:
+  configuration:
+    secretName: pg-configuration
+  replicas: 5
+  standbyMode: "Warm"
+  streamingMode: "Synchronous"
+  version: "18.2"
+  storageType: Durable
+  sslMode: verify-full
+  tls:
+    issuerRef:
+      apiGroup: cert-manager.io
+      name: pg-issuer
+      kind: Issuer
+    certificates:
+    - alias: server
+      subject:
+        organizations:
+        - kubedb:server
+      dnsNames:
+      - localhost
+      ipAddresses:
+      - "127.0.0.1"
+  podTemplate:
+    spec:
+      containers:
+      - name: postgres
+        resources:
+          limits:
+            memory: 2Gi
+          requests:
+            cpu: 700m 
+            memory: 1Gi
+  storage:
+    storageClassName: "local-path"
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 1Gi
+  deletionPolicy: Delete
