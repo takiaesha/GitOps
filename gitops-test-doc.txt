@@ -1,0 +1,32 @@
+Cluster setup: while installing kubedb resources: use
+
+-> helm upgrade -i kubedb oci://ghcr.io/appscode-charts/kubedb \
+  --version v2026.2.26 \
+  --namespace kubedb --create-namespace \
+  --set kubedb-crd-manager.installGitOpsCRDs=true \
+  --set-file global.license=/home/esha/k-license.txt \
+  --wait --burst-limit=10000 --debug
+
+** if need to restart the pods (ops/gitops) -> delete the pod
+
+1. apply gitops CR. 
+   change: apiVersion
+   step: 
+   -> deploy git-ops cr. DB will be ready automatically, pod running
+   -> chnage in the ops, according to the change, respected ops-request will be triggerd. 
+      no need to create ops seperately, wait till ops has succeeded
+  
+   
+  Flow: 
+  1. apply gitops CR 
+  2. DB name get from gitops CR 
+  3. DB ready phase check  
+  4. populate DB  
+  5. check the resources/change resources in that gitops CR  (ops related), gitops will be reconfigured
+  6. automatically ops-request  will be triggered , need to get the ops-request (by name/label-selector) 
+  7. check the resources whether they have changed successfully 
+  8. Ops-request successfully done check
+  
+
+
+postgresopsrequest.ops.kubedb.com/gitops-pg-5hvpmm-horizontalscaling-e3i6yn
