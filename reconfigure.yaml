@@ -1,0 +1,33 @@
+apiVersion: gitops.kubedb.com/v1alpha1
+kind: Postgres
+metadata:
+  name: postgres-reconfigure
+  namespace: demo
+spec:
+  configuration:
+    secretName: pg-configuration
+    inline:
+      max_connections: "300"
+      shared_buffers: "777MB"
+  removeCustomConfig: true
+  replicas: 4
+  version: "18.2"
+  storageType: Durable
+  podTemplate:
+    spec:
+      containers:
+      - name: postgres
+        resources:
+          limits:
+            memory: 2Gi
+          requests:
+            cpu: 700m
+            memory: 2Gi
+  storage:
+    storageClassName: "local-path"
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 10Gi
+  deletionPolicy: WipeOut
