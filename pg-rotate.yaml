@@ -1,0 +1,32 @@
+apiVersion: gitops.kubedb.com/v1alpha1
+kind: Postgres
+metadata:
+  name: postgres-rotate
+  namespace: rotate
+spec:
+  authSecret:
+    kind: Secret
+    name: pg-rotate-auth
+  # configuration:
+  #   secretName: pg-configuration
+  replicas: 5
+  version: "16.6"
+  storageType: Durable
+  podTemplate:
+    spec:
+      containers:
+      - name: postgres
+        resources:
+          limits:
+            memory: 2Gi
+          requests:
+            cpu: 700m
+            memory: 2Gi
+  storage:
+    storageClassName: "local-path"
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 10Gi
+  deletionPolicy: WipeOut
