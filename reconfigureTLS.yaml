@@ -1,0 +1,47 @@
+apiVersion: gitops.kubedb.com/v1alpha1
+kind: Postgres
+metadata:
+  name: tls-postgres
+  namespace: demo
+spec:
+  # authSecret:
+  #   kind: Secret
+  #   name: pg-rotate-auth
+  # configuration:
+  #   secretName: pg-configuration
+  replicas: 4     #pod/tls-postgres-arbiter-0  : 4
+  version: "16.6"
+  storageType: Durable
+  sslMode: verify-full
+  tls:
+    issuerRef:
+      apiGroup: cert-manager.io
+      name: pg-issuer
+      kind: Issuer
+    certificates:
+    - alias: server
+      subject:
+        organizations:
+        - kubedb:server
+      dnsNames:
+      - localhost
+      ipAddresses:
+      - "127.0.0.1"
+  podTemplate:
+    spec:
+      containers:
+      - name: postgres
+        resources:
+          limits:
+            memory: 2Gi
+          requests:
+            cpu: 700m
+            memory: 2Gi
+  storage:
+    storageClassName: "local-path"
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 10Gi
+  deletionPolicy: WipeOut
